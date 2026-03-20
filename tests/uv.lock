@@ -462,6 +462,7 @@ name = "tests"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "cryptography" },
     { name = "httpx" },
     { name = "psycopg", extra = ["binary", "pool"] },
     { name = "pytest" },
@@ -472,6 +473,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "cryptography", specifier = ">=46.0.5" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "psycopg", extras = ["binary", "pool"], specifier = ">=3.2.9" },
     { name = "pytest", specifier = ">=8.4.2" },

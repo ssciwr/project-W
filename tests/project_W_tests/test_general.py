@@ -1,8 +1,10 @@
 import os
-from io import BytesIO
-
 import pytest
+
+from io import BytesIO
 from httpx import codes
+
+from .helper_functions import wait_for_job_assignment, wait_for_job_completion
 
 
 @pytest.mark.parametrize(
@@ -68,7 +70,7 @@ def test_about_imprint(get_client):
     ],
     indirect=True,
 )
-def test_full_workflow_simple(runner, get_logged_in_client, helper_functions):
+def test_full_workflow_simple(runner, get_logged_in_client):
     runner_name = "runner 1"
     with runner(runner_name, 100) as runner_id:
         client = get_logged_in_client()
@@ -112,7 +114,7 @@ def test_full_workflow_simple(runner, get_logged_in_client, helper_functions):
         assert type(job_info[0].get("creation_timestamp")) is str
         assert 0 <= job_info[0].get("progress") <= 100
 
-        helper_functions.wait_for_job_assignment(job_id, client)
+        wait_for_job_assignment(job_id, client)
         response = client.get("/api/jobs/info", params={"job_ids": job_id})
         assert response.status_code == codes.OK
         job_info = response.json()
@@ -129,7 +131,7 @@ def test_full_workflow_simple(runner, get_logged_in_client, helper_functions):
         )  # make sure that version is larger than 0.0.x
         assert type(job_info[0].get("runner_git_hash")) is str
 
-        helper_functions.wait_for_job_completion(job_id, client)
+        wait_for_job_completion(job_id, client)
         response = client.get("/api/jobs/info", params={"job_ids": job_id})
         assert response.status_code == codes.OK
         job_info = response.json()

@@ -130,18 +130,13 @@ jobs:
           cache-from: type=registry,ref=${{ env.DUMMY_RUNNER_IMAGE }}:buildcache
           cache-to: ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}:buildcache,mode=max', env.DUMMY_RUNNER_IMAGE) || '' }}
 
-      - name: Setup SSL certificates
-        run: |
-          mkdir -p ./backend-config/certs
-          openssl req -x509 -newkey rsa:4096 -sha256 -nodes -keyout ./backend-config/certs/key.pem -out ./backend-config/certs/cert.pem -subj '/CN=localhost'
-
       - name: Install test suite
         run: |
           uv sync --locked --project tests
 
       - name: Run test suite
         run: |
-          uv run --project tests pytest --timeout=45 tests/
+          uv run --project tests pytest --timeout=45 tests/project_W_tests/
 
   docker-build:
     #don't build&push docker image on a PR

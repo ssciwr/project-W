@@ -116,7 +116,7 @@ async def get_new_api_token(
     token = await dp.db.add_new_user_token(
         login_context.user.id, name, True, False, None, login_context.token.oidc_refresh_token_id
     )
-    return token.get_secret_value()
+    return token.root.get_secret_value()
 
 
 @router.get("/get_all_token_info")

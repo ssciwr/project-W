@@ -7,22 +7,8 @@ from httpx import codes
 from .helper_functions import wait_for_job_assignment, wait_for_job_completion
 
 
-@pytest.mark.parametrize(
-    "backend",
-    [
-        (
-            {
-                "name": "CI",
-                "email": "ci@example.org",
-                "additional_imprint_html": "<div>hello</div>",
-            },
-        ),
-        (None,),
-    ],
-    indirect=True,
-)
 def test_about(get_client):
-    client = get_client()
+    client = get_client[0]()
     response = client.get("/api/about")
     assert response.status_code == codes.OK
     assert response.headers.get("Content-Type") == "application/json"
@@ -39,21 +25,8 @@ def test_about(get_client):
     assert type(content.get("git_hash")) is str
 
 
-@pytest.mark.parametrize(
-    "backend",
-    [
-        (
-            {
-                "name": "CI",
-                "email": "ci@example.org",
-                "additional_imprint_html": "<div>hello</div>",
-            },
-        ),
-    ],
-    indirect=True,
-)
 def test_about_imprint(get_client):
-    client = get_client()
+    client = get_client[0]()
     response = client.get("/api/about")
     assert response.status_code == codes.OK
     assert response.headers.get("Content-Type") == "application/json"

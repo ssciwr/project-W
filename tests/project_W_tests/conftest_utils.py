@@ -66,7 +66,10 @@ class AuthMethod(Enum):
     LOCAL_TOKEN = "local_token"
     LDAP_TOKEN = "ldap_token"
 
-def login_client(client: Client, auth_method: AuthMethod, as_admin: bool) -> Client:
+#currently there is no  way to create an API token with admin privileges
+ADMIN_AUTH_METHODS = ["local", "ldap"]
+
+def login_client(client: Client, auth_method: AuthMethod, as_admin: bool, force_token_auth: bool = False) -> Client:
     data={ #we use the same auth data for local and ldap users
         "grant_type": "password",
         "username": "admin_user@example.org" if as_admin else "normal_user@example.org",
@@ -84,7 +87,11 @@ def login_client(client: Client, auth_method: AuthMethod, as_admin: bool) -> Cli
             data=data,
         )
     response.raise_for_status()
-    client.cookies = response.cookies
+    if force_token_auth:
+        client.headers["Authorization"] = f"Bearer {response.cookies['token']}"
+        client.cookies = {}
+    else:
+        client.cookies = response.cookies
 
     if auth_method == AuthMethod.LOCAL_TOKEN or auth_method == AuthMethod.LDAP_TOKEN:
         if as_admin:

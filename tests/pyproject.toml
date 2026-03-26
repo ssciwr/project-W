@@ -10,5 +10,6 @@ dependencies = [
     "pytest>=8.4.2",
     "pytest-timeout>=2.4.0",
     "redis[hiredis]>=6.4.0",
+    "schemathesis>=4.13.0",
     "smtpdfix>=0.5.2",
 ]

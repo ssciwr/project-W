@@ -60,7 +60,7 @@ async def register(
 
     await dp.ch.assign_queue_job_to_runner_if_possible()
 
-    return RegisteredResponse(id=runner_id, session_token=token)
+    return RegisteredResponse(id=runner_id, session_token=token.root.get_secret_value())
 
 
 @router.post("/unregister")

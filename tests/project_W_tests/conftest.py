@@ -11,7 +11,7 @@ import redis
 
 from contextlib import contextmanager
 
-from .conftest_utils import get_cert_dir_from_backend_dir, generate_self_signed_certs, AuthMethod, login_client
+from .conftest_utils import ADMIN_AUTH_METHODS, get_cert_dir_from_backend_dir, generate_self_signed_certs, AuthMethod, login_client
 from .helper_functions import wait_for_backend
 
 
@@ -98,7 +98,11 @@ def backend(request, smtpd, tmp_path):
                 },
             },
         },
-        "imprint": request.param[0],
+        "imprint": request.param[0] if (hasattr(request, "param") and len(request.param) > 0) else {
+            "name": "CI",
+            "email": "ci@example.org",
+            "additional_imprint_html": "<div>hello</div>",
+        },
         "logging": {
             "file": {
                 "path": "/etc/xdg/project-W/backend.log",
@@ -165,16 +169,15 @@ def backend(request, smtpd, tmp_path):
 @pytest.fixture(scope="function")
 def get_client(backend):
     clients = []
-    cert_dir = get_cert_dir_from_backend_dir(backend[2])
+    cert_path = (get_cert_dir_from_backend_dir(backend[2]) / "cert.pem").resolve()
 
     def _client_factory():
-        cafile = (cert_dir / "cert.pem").resolve()
-        ctx = ssl.create_default_context(cafile=cafile)
+        ctx = ssl.create_default_context(cafile=cert_path)
         client = httpx.Client(base_url=backend[0], verify=ctx)
         clients.append(client)
         return client
 
-    yield _client_factory
+    yield _client_factory, cert_path
 
     for client in clients:
         client.close()
@@ -187,14 +190,14 @@ def get_logged_in_client(request, get_client):
     Runs 4 times using different login methods (local account, ldap, API token of local account, API token of ldap account)
     Currently does not test OIDC since browser login flow is difficult to simulate in CI
     """
-    def _client_factory():
-        client = get_client()
-        return login_client(client, AuthMethod(request.param), False)
+    def _client_factory(force_token_auth: bool = False):
+        client = get_client[0]()
+        return login_client(client, AuthMethod(request.param), False, force_token_auth)
 
     return _client_factory
 
 
-@pytest.fixture(scope="function", params=["local", "ldap"])
+@pytest.fixture(scope="function", params=ADMIN_AUTH_METHODS)
 def get_logged_in_admin_client(request, get_client):
     """
     Gets a logged in session (as an admin user)
@@ -202,9 +205,9 @@ def get_logged_in_admin_client(request, get_client):
     Currently does not test OIDC since browser login flow is difficult to simulate in CI
     API tokens not used here since they cannot have admin privileges
     """
-    def _client_factory():
-        client = get_client()
-        return login_client(client, AuthMethod(request.param), True)
+    def _client_factory(force_token_auth: bool = False):
+        client = get_client[0]()
+        return login_client(client, AuthMethod(request.param), True, force_token_auth)
 
     return _client_factory
 
@@ -213,7 +216,7 @@ def get_logged_in_admin_client(request, get_client):
 def runner(backend, get_client, tmp_path):
     @contextmanager
     def _runner_factory(name: str, priority: int):
-        client = login_client(get_client(), AuthMethod.LOCAL, True)
+        client = login_client(get_client[0](), AuthMethod.LOCAL, True)
         response = client.post("/api/admins/create_runner")
         response.raise_for_status()
         content = response.json()

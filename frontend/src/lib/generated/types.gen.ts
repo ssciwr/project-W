@@ -2149,6 +2149,10 @@ export type OidcOidcRedirectData = {
 
 export type OidcOidcRedirectErrors = {
     /**
+     * Could not find specified IdP
+     */
+    400: ErrorResponse;
+    /**
      * Validation Error
      */
     422: HttpValidationError;

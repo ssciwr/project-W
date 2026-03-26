@@ -3,7 +3,8 @@ from typing import Annotated, Any
 
 from fastapi import Depends, HTTPException, Response, status
 from fastapi.security import APIKeyCookie, HTTPAuthorizationCredentials, HTTPBearer
-from pydantic import SecretStr
+from pydantic import ValidationError
+from project_W_lib.models.base import Token
 from project_W_lib.models.response_models import ErrorResponse, UserResponse, UserTypeEnum
 
 import project_W.dependencies as dp
@@ -15,7 +16,6 @@ from ..models.internal_models import (
     OidcUserInternal,
     OnlineRunner,
 )
-from ..utils import hash_token
 from .oidc_deps import get_provider_name
 
 # define all possible HTTP responses here so that they can be included together with the dependency for the docs
@@ -57,7 +57,7 @@ online_runner_dependency_responses: dict[int | str, dict[str, Any]] = {
     },
 }
 
-get_bearer = HTTPBearer(
+get_bearer_http_credential = HTTPBearer(
     bearerFormat="Bearer",
     scheme_name="Auth & runner token",
     description="""
@@ -71,7 +71,24 @@ get_bearer = HTTPBearer(
     """,
     auto_error=False,
 )
-get_cookie = APIKeyCookie(
+
+
+def get_bearer(
+    token: Annotated[HTTPAuthorizationCredentials | None, Depends(get_bearer_http_credential)],
+) -> Token | None:
+    if token is None:
+        return None
+    else:
+        try:
+            return Token.model_validate(token.credentials)
+        except ValidationError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not authenticated",
+            )
+
+
+get_cookie_str = APIKeyCookie(
     name="token",
     scheme_name="Auth token",
     description="""
@@ -85,6 +102,19 @@ get_cookie = APIKeyCookie(
     """,
     auto_error=False,
 )
+
+
+def get_cookie(token: Annotated[str | None, Depends(get_cookie_str)]) -> Token | None:
+    if token is None:
+        return None
+    else:
+        try:
+            return Token.model_validate(token)
+        except ValidationError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not authenticated",
+            )
 
 
 admin_user_scope = "admin"
@@ -109,9 +139,9 @@ def check_admin_privileges(scopes: list[str], is_admin: bool) -> bool:
     return admin_privileges
 
 
-def set_token_cookie(response: Response, token: SecretStr):
+def set_token_cookie(response: Response, token: Token):
     max_age_secs = dp.config.security.tokens.session_expiration_time_minutes * 60
-    response.set_cookie(key="token", value=token.get_secret_value(), max_age=max_age_secs)
+    response.set_cookie(key="token", value=token.root.get_secret_value(), max_age=max_age_secs)
 
 
 def unset_cookie(response: Response):
@@ -125,12 +155,12 @@ def validate_user(
     no_provisioned_users: bool = False,
 ):
     async def user_validation_dep(
-        bearer_token: Annotated[HTTPAuthorizationCredentials | None, Depends(get_bearer)],
-        cookie_token: Annotated[str | None, Depends(get_cookie)],
+        bearer_token: Annotated[Token | None, Depends(get_bearer)],
+        cookie_token: Annotated[Token | None, Depends(get_cookie)],
         response: Response,
     ) -> LoginContext:
         if bearer_token is not None:
-            token = bearer_token.credentials
+            token = bearer_token
         elif cookie_token is not None:
             token = cookie_token
         else:
@@ -226,7 +256,7 @@ def validate_user(
 
 
 async def validate_runner(
-    token: Annotated[HTTPAuthorizationCredentials | None, Depends(get_bearer)],
+    token: Annotated[Token | None, Depends(get_bearer)],
 ) -> int:
     if token is None:
         raise HTTPException(
@@ -234,7 +264,7 @@ async def validate_runner(
             detail="Not authenticated",
         )
 
-    if (runner_id := await dp.db.get_runner_by_token(token.credentials)) is None:
+    if (runner_id := await dp.db.get_runner_by_token(token)) is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="No runner with that token exists!",
@@ -246,14 +276,20 @@ async def validate_runner(
 async def validate_online_runner(
     runner_id: Annotated[int, Depends(validate_runner)], session_token: str
 ) -> OnlineRunner:
+    try:
+        session_token_validated = Token.model_validate(session_token)
+    except ValidationError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+        )
     if not (online_runner := await dp.ch.get_online_runner_by_id(runner_id)):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="This runner is currently not registered as online!",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    token_hash = hash_token(session_token)
-    if online_runner.session_token_hash != token_hash:
+    if online_runner.session_token_hash != session_token_validated.hash():
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="The session token is invalid. Your runner token might have been compromised and used to re-register this runner on a different machine, if this wasn't you then immediately invalidate this runner! Refer to the documentation for how to do so",

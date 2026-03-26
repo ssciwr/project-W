@@ -1,4 +1,3 @@
-import secrets
 from abc import ABC, abstractmethod
 from typing import AsyncGenerator
 
@@ -7,13 +6,13 @@ from pydantic import ValidationError
 from redis.asyncio.client import Pipeline
 from redis.asyncio.retry import Retry
 from redis.backoff import ExponentialBackoff
+from project_W_lib.models.base import Token
 from project_W_lib.models.request_models import RunnerRegisterRequest
 
 import project_W.dependencies as dp
 
 from .models.internal_models import InProcessJob, OnlineRunner, SSEEvent
 from .models.setting_models import RedisConnection
-from .utils import hash_token
 
 
 class CachingAdapter(ABC):
@@ -34,7 +33,7 @@ class CachingAdapter(ABC):
     @abstractmethod
     async def register_new_online_runner(
         self, runner_id: int, runner_data: RunnerRegisterRequest
-    ) -> str:
+    ) -> Token:
         """
         This method registers a runner as online
         Returns the new runner session token
@@ -232,14 +231,13 @@ class RedisAdapter(CachingAdapter):
 
     async def register_new_online_runner(
         self, runner_id: int, runner_data: RunnerRegisterRequest
-    ) -> str:
-        token = secrets.token_urlsafe()
-        token_hash = hash_token(token)
+    ) -> Token:
+        token = Token()
         async with self.client.pipeline(transaction=True) as pipe:
             key_name = self.__get_runner_key(runner_id)
             runner_dump = runner_data.model_dump(exclude_none=True)
             runner_dump["in_process"] = 0
-            runner_dump["session_token_hash"] = token_hash
+            runner_dump["session_token_hash"] = token.hash()
             pipe.hset(key_name, mapping=runner_dump)
             pipe.expire(key_name, self.__heartbeat_timeout)
             pipe.zadd(

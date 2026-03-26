@@ -401,7 +401,7 @@ export const jobsDownloadTranscript = <ThrowOnError extends boolean = false>(opt
  * This is a special route for subscribing to server-sent events (SSE) which all contain an event field.
  * Currently there are three events: job_created, job_updated and job_deleted. As data they all return the job id of the job the event refers to (i.e. the id of the job that just got created, updated or deleted). This route can be used to only fetch job info using the info route when it actually has changed without having to periodically re-fetch the job info of all jobs. Refer to https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#listening_for_custom_events for more information about SSE.
  */
-export const jobsEvents = <ThrowOnError extends boolean = false>(options?: Options<JobsEventsData, ThrowOnError>) => (options?.client ?? client).get<JobsEventsResponses, JobsEventsErrors, ThrowOnError>({
+export const jobsEvents = <ThrowOnError extends boolean = false>(options?: Options<JobsEventsData, ThrowOnError>) => (options?.client ?? client).sse.get<JobsEventsResponses, JobsEventsErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }, {
             in: 'cookie',
             name: 'token',

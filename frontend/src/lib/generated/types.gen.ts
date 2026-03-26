@@ -147,7 +147,7 @@ export type BodyJobsSubmitJob = {
     /**
      * Audio File
      */
-    audio_file: Blob | File;
+    audio_file: string;
 };
 
 /**

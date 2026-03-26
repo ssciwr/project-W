@@ -36,7 +36,7 @@ export const generalAuthSettings = <ThrowOnError extends boolean = false>(option
 /**
  * Invalidate Token
  *
- * Invalidate the local token with the provided id. Doesn't work for OIDC tokens. After calling this route the token with the provided id can't be used anymore.
+ * Invalidate the local token with the provided id. After calling this route the token with the provided id can't be used anymore.
  */
 export const usersInvalidateToken = <ThrowOnError extends boolean = false>(options: Options<UsersInvalidateTokenData, ThrowOnError>) => (options.client ?? client).delete<UsersInvalidateTokenResponses, UsersInvalidateTokenErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }, {
@@ -51,7 +51,7 @@ export const usersInvalidateToken = <ThrowOnError extends boolean = false>(optio
 /**
  * Invalidate All Tokens
  *
- * Invalidate all local tokens of the logged in user account. Doesn't work for OIDC tokens. After calling this route all local tokens of the logged in user account won't work anymore.
+ * Invalidate all local tokens of the logged in user account. After calling this route all local tokens of the logged in user account won't work anymore.
  */
 export const usersInvalidateAllTokens = <ThrowOnError extends boolean = false>(options?: Options<UsersInvalidateAllTokensData, ThrowOnError>) => (options?.client ?? client).delete<UsersInvalidateAllTokensResponses, UsersInvalidateAllTokensErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }, {

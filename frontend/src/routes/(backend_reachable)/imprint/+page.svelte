@@ -11,10 +11,12 @@
 	}
 	let { data }: Props = $props();
 
-	if (data.about.imprint != null && data.about.imprint.url != null) {
-		const win: Window = window;
-		win.location = data.about.imprint.url;
-	}
+	$effect(() => {
+		if (data.about.imprint != null && data.about.imprint.url != null) {
+			const win: Window = window;
+			win.location = data.about.imprint.url;
+		}
+	});
 </script>
 
 <CenterPage title="Imprint of this instance">

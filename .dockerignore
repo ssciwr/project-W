@@ -1,4 +1,13 @@
 #this file can't contain anything that .gitignore doesn't contain since otherwise git will report the tree as dirty during docker builds!
 #this would be bad for dynamic version generation. (e.g. setuptools-scm would then report the version as a dev version)
 #the final docker container won't contain the source code anyway, so there is no downside in having nothing in here anyway
+#we just include dirs that can get very large to reduce size of context that needs to be copied
 **/__pycache__/
+**/pypackages/
+**/.venv/
+**/node_modules/
+**/build/
+**/dist/
+**/project-W-data/
+**.log
+**/.DS_Store

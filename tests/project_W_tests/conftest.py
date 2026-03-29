@@ -115,6 +115,18 @@ def backend(request, smtpd, tmp_path):
     with open((tmp_path / "config.yml").resolve(), "w") as f:
         json.dump(settings, f)
 
+    #to make sure the container is really stopped before starting it
+    subprocess.run(
+        [
+            "docker",
+            "stop",
+            "Project-W",
+        ],
+        check=False,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
+
     subprocess.run(
         [
             "docker",
@@ -143,7 +155,7 @@ def backend(request, smtpd, tmp_path):
             "stop",
             "Project-W",
         ],
-        check=True,
+        check=False, #maybe the container crashed during testing
     )
 
     #print logs
@@ -253,6 +265,19 @@ def runner(backend, get_client, tmp_path):
 
         normalized_name = re.sub("[^a-zA-Z0-9_.-]", "_", name)
         container_name = f"runner-{normalized_name}"
+
+        #to make sure the container is really stopped before starting it
+        subprocess.run(
+            [
+                "docker",
+                "stop",
+                container_name,
+            ],
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+
         subprocess.run(
             [
                 "docker",
@@ -280,7 +305,7 @@ def runner(backend, get_client, tmp_path):
                 "stop",
                 container_name,
             ],
-            check=True,
+            check=False, #maybe the container crashed during testing
         )
 
         #print logs

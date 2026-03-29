@@ -61,7 +61,7 @@ def admin_schema_fixture(backend, get_client, get_logged_in_admin_client):
 
 #lazy schema loading
 not_authenticated_schema = schemathesis.pytest.from_fixture("not_authenticated_schema_fixture")
-client_schema = schemathesis.pytest.from_fixture("client_schema_fixture").exclude(tag_regex="(runners|admins)").exclude(path_regex="/api/users/(invalidate_token|invalidate_all_tokens|logout|delete)") #these paths can break future tests since each test category here shares one session
+client_schema = schemathesis.pytest.from_fixture("client_schema_fixture").exclude(tag_regex="(runners|admins)").exclude(path_regex="/api/jobs/events").exclude(path_regex="/api/users/(invalidate_token|invalidate_all_tokens|logout|delete)") #these paths can break future tests since each test category here shares one session
 admin_schema = schemathesis.pytest.from_fixture("admin_schema_fixture").include(tag_regex="admins")
 
 

@@ -17,13 +17,13 @@ on:
 #define yaml anchors because GitHub Actions env values cannot be put into matrix expression
 #yaml anchors can't be put inline of a string though, so also define env vars for images
 env:
-  BACKEND_IMAGE: &backend_image "ghcr.io/julianfp/project-w"
+  BACKEND_IMAGE: &backend_image "ghcr.io/ssciwr/project-w"
   BACKEND_DOCKERFILE: &backend_dockerfile "backend.Dockerfile"
-  CRON_IMAGE: &cron_image "ghcr.io/julianfp/project-w_cron"
+  CRON_IMAGE: &cron_image "ghcr.io/ssciwr/project-w_cron"
   CRON_DOCKERFILE: &cron_dockerfile "cron.Dockerfile"
-  RUNNER_IMAGE: &runner_image "ghcr.io/julianfp/project-w_runner"
+  RUNNER_IMAGE: &runner_image "ghcr.io/ssciwr/project-w_runner"
   RUNNER_DOCKERFILE: &runner_dockerfile "runner.Dockerfile"
-  DUMMY_RUNNER_IMAGE: &dummy-runner_image "ghcr.io/julianfp/project-w_runner_dummy"
+  DUMMY_RUNNER_IMAGE: &dummy-runner_image "ghcr.io/ssciwr/project-w_runner_dummy"
   DUMMY_RUNNER_DOCKERFILE: &dummy-runner_dockerfile "runner_dummy.Dockerfile"
 
 jobs:

@@ -108,7 +108,7 @@ This will setup the backend/frontend without a reverse proxy or any additional c
             start_period: 30s
             timeout: 10s
         project-w:
-          image: ghcr.io/julianfp/project-w
+          image: ghcr.io/ssciwr/project-w
           restart: unless-stopped
           depends_on:
             postgres:
@@ -131,7 +131,7 @@ This will setup the backend/frontend without a reverse proxy or any additional c
           ports:
             - 443:5000
         project-w_cron:
-          image: ghcr.io/julianfp/project-w_cron
+          image: ghcr.io/ssciwr/project-w_cron
           restart: unless-stopped
           depends_on:
             postgres:
@@ -257,7 +257,7 @@ Follow this guide if you want to run this behind a Reverse Proxy which automatic
             start_period: 30s
             timeout: 10s
         project-w:
-          image: ghcr.io/julianfp/project-w
+          image: ghcr.io/ssciwr/project-w
           restart: unless-stopped
           depends_on:
             postgres:
@@ -278,7 +278,7 @@ Follow this guide if you want to run this behind a Reverse Proxy which automatic
             - POSTGRES_PASSWORD=${PROJECT_W_POSTGRES_PASSWORD}
             - ADMIN_PASSWORD=${PROJECT_W_ADMIN_PASSWORD}
         project-w_cron:
-          image: ghcr.io/julianfp/project-w_cron
+          image: ghcr.io/ssciwr/project-w_cron
           restart: unless-stopped
           depends_on:
             postgres:
@@ -366,7 +366,7 @@ NVIDIA GPU
 
       services:
         runner:
-          image: ghcr.io/julianfp/project-w_runner
+          image: ghcr.io/ssciwr/project-w_runner
           restart: unless-stopped
           volumes:
             - ./runner-config:/etc/xdg/project-W-runner/
@@ -435,7 +435,7 @@ CPU
 
       services:
         runner:
-          image: ghcr.io/julianfp/project-w_runner
+          image: ghcr.io/ssciwr/project-w_runner
           restart: unless-stopped
           volumes:
             - ./runner-config:/etc/xdg/project-W-runner/
@@ -465,7 +465,7 @@ To start you need to add our flake as an input to your own. For this add the fol
 
       inputs = {
         ...
-        project-W.url = "github:JulianFP/project-W";
+        project-W.url = "github:ssciwr/project-W";
       };
 
 Note that overriding the `nixpkgs` input of the flake might not work, especially if you are using a stable branch of nixpkgs. Your mileage may vary.
@@ -591,7 +591,7 @@ The frontend is written in Svelte and needs to be compiled into native Javascrip
 
    .. code-block:: console
 
-      git clone https://github.com/JulianFP/project-W.git & cd project-W/frontend
+      git clone https://github.com/ssciwr/project-W.git & cd project-W/frontend
 
 3. Install pnpm:
 
@@ -651,7 +651,7 @@ Runner
 
    .. code-block:: bash
 
-      git clone https://github.com/JulianFP/project-W.git & cd project-W/runner
+      git clone https://github.com/ssciwr/project-W.git & cd project-W/runner
 
 3. Install the project including it's whisper dependencies:
 

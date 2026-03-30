@@ -26,7 +26,7 @@
   <div>
     <Heading tag="h4" class="mb-2">Version and source code information</Heading>
     <P>The backend is running on version {data.about.version}. <A href={data.about.source_code} target="_blank" rel="noopener noreferrer">It's source code</A> is checked out at git hash {data.about.git_hash}.</P>
-    <P>The frontend is running on version {frontend_version}. <A href="https://github.com/JulianFP/project-W/tree/main/frontend" target="_blank" rel="noopener noreferrer">It's source code</A> is checked out at git hash {frontend_git_hash}.</P>
+    <P>The frontend is running on version {frontend_version}. <A href="https://github.com/ssciwr/project-W/tree/main/frontend" target="_blank" rel="noopener noreferrer">It's source code</A> is checked out at git hash {frontend_git_hash}.</P>
     <P>The version and source code information for each runner can be viewed under the job details after a submitted job was assigned to the runner.</P>
   </div>
 

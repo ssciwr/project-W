@@ -55,7 +55,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   meta = {
     description = "Frontend files for Project-W";
-    homepage = "https://github.com/JulianFP/project-W";
+    homepage = "https://github.com/ssciwr/project-W";
     license = lib.licenses.agpl3Only;
   };
 })

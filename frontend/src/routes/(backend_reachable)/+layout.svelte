@@ -123,10 +123,10 @@
           <FooterLink href="#/tos">Terms of Services</FooterLink>
         {/if}
         <FooterLink href={`${PUBLIC_BACKEND_BASE_URL}/docs`} target="_blank" rel="noopener noreferrer">API docs</FooterLink>
-        <FooterLink href="https://github.com/JulianFP/project-W" target="_blank" rel="noopener noreferrer"><GithubSolid class="inline mr-2"/>GitHub</FooterLink>
+        <FooterLink href="https://github.com/ssciwr/project-W" target="_blank" rel="noopener noreferrer"><GithubSolid class="inline mr-2"/>GitHub</FooterLink>
       </FooterLinkGroup>
     </div>
     <hr class="my-6 lg:my-8 border-gray-200 dark:border-gray-700"/>
-    <FooterCopyright href="https://github.com/JulianFP/project-W/blob/main/COPYING.md" target="_blank" rel="noopener noreferrer" by="Julian Partanen and contributors (click to see all contributors)." year={2026}/>
+    <FooterCopyright href="https://github.com/ssciwr/project-W/blob/main/COPYING.md" target="_blank" rel="noopener noreferrer" by="Julian Partanen and contributors (click to see all contributors)." year={2026}/>
   </Footer>
 </div>

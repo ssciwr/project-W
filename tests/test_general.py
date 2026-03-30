@@ -29,7 +29,7 @@ def test_about(get_client):
         content.get("description")
         == "A self-hostable platform on which users can create transcripts of their audio files (speech-to-text) using Whisper AI"
     )
-    assert content.get("source_code") == "https://github.com/JulianFP/project-W/tree/main/backend"
+    assert content.get("source_code") == "https://github.com/ssciwr/project-W/tree/main/backend"
     version_splitted = content.get("version").split(".")
     assert (
         version_splitted[0] != "0" or version_splitted[1] != "0"
@@ -121,7 +121,7 @@ def test_full_workflow_simple(runner, get_logged_in_client, helper_functions):
         assert job_info[0].get("runner_name") == runner_name
         assert (
             job_info[0].get("runner_source_code_url")
-            == "https://github.com/JulianFP/project-W/tree/main/runner"
+            == "https://github.com/ssciwr/project-W/tree/main/runner"
         )
         runner_version_splitted = job_info[0].get("runner_version").split(".")
         assert (
@@ -139,7 +139,7 @@ def test_full_workflow_simple(runner, get_logged_in_client, helper_functions):
         assert job_info[0].get("runner_name") == runner_name
         assert (
             job_info[0].get("runner_source_code_url")
-            == "https://github.com/JulianFP/project-W/tree/main/runner"
+            == "https://github.com/ssciwr/project-W/tree/main/runner"
         )
         runner_version_splitted = job_info[0].get("runner_version").split(".")
         assert (

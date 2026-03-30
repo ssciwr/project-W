@@ -93,7 +93,7 @@ Project-W is a platform for creating transcripts of audio files (speech-to-text)
 
 In addition to [the OpenAPI doc](/docs) there is also [a Redoc doc](/redoc) available if you prefer.
 
-If you are looking for documentation about something else than the API then refer to the [full Project-W documentation](https://project-w.readthedocs.io). You can also find the [source code of all Project-W components on GitHub](https://github.com/julianfp/project-w).
+If you are looking for documentation about something else than the API then refer to the [full Project-W documentation](https://project-w.readthedocs.io). You can also find the [source code of all Project-W components on GitHub](https://github.com/ssciwr/project-w).
 """
 app_tags_metadata = [
     {

@@ -5,9 +5,9 @@
   <img src="frontend/static/favicon.png" width="200"/>
 
   [![License: AGPLv3](https://img.shields.io/badge/License-agplv3-yellow.svg)](https://opensource.org/license/agpl-v3)
-  [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/JulianFP/project-W/ci.yml?branch=main)](https://github.com/JulianFP/project-W/actions/workflows/ci.yml)
+  [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ssciwr/project-W/ci.yml?branch=main)](https://github.com/ssciwr/project-W/actions/workflows/ci.yml)
   [![Documentation Status](https://readthedocs.org/projects/project-w/badge/?version=latest)](https://project-w.readthedocs.io/en/latest/?badge=latest)
-  [![GitHub release](https://img.shields.io/github/v/release/JulianFP/project-w)](https://github.com/julianfp/project-w/releases)
+  [![GitHub release](https://img.shields.io/github/v/release/ssciwr/project-w)](https://github.com/ssciwr/project-w/releases)
 </div>
 
 ## What is this?
@@ -24,9 +24,9 @@ This is where Project W comes in: It is designed so that everything can be hoste
 
 ## Why are there three main components?
 
-Project W consists of three components: The frontend/client, the backend, and the runner. They are all available in [this single mono-repository](https://github.com/JulianFP/project-W).
+Project W consists of three components: The frontend/client, the backend, and the runner. They are all available in [this single mono-repository](https://github.com/ssciwr/project-W).
 
-![UML-diagram](https://github.com/JulianFP/project-W/assets/70963316/717c278c-e985-47d4-9b97-3b861dbe99ca)
+![UML-diagram](https://github.com/ssciwr/project-W/assets/70963316/717c278c-e985-47d4-9b97-3b861dbe99ca)
 
 The backend and runner are written in Python, and we use FastAPI for the backends HTTP-Server. The Frontend is written in Svelte and SvelteKit so that it can be compiled into native Javascript, HTML and CSS. No Nodejs or anything other than a webserver (e.g. nginx) is required to serve the frontend. Of course you can also choose to write your own client with anything you like that can communicate with a REST API. This means you can use Project W with some bash or python script to automate certain tasks.
 
@@ -34,7 +34,7 @@ The backend and runner are written in Python, and we use FastAPI for the backend
 
 You can access the full documentation for administrators and developers [here](https://project-w.readthedocs.io). Most notably this includes installation and configuration instructions for all three components if you want to host them yourself.
 
-![output](https://github.com/JulianFP/project-W/assets/70963316/2134852b-369c-4bda-a0f4-7575753414d9)
+![output](https://github.com/ssciwr/project-W/assets/70963316/2134852b-369c-4bda-a0f4-7575753414d9)
 
 ## E-Science-Tage 2025: Poster
 

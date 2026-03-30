@@ -17,7 +17,7 @@ async def about() -> AboutResponse:
     """
     return AboutResponse(
         description="A self-hostable platform on which users can create transcripts of their audio files (speech-to-text) using Whisper AI",
-        source_code="https://github.com/JulianFP/project-W/tree/main/backend",
+        source_code="https://github.com/ssciwr/project-W/tree/main/backend",
         version=__version__,
         git_hash=dp.git_hash,
         imprint=dp.config.imprint,

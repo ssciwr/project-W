@@ -23,7 +23,7 @@ Regardless which component you want to develop on, start of by cloning the repos
 
    .. code-block:: console
 
-      git clone https://github.com/JulianFP/project-W.git && cd project-W
+      git clone https://github.com/ssciwr/project-W.git && cd project-W
 
 You can now start all the components required to run the backend using docker/podman. For this run:
 

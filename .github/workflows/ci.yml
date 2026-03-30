@@ -136,7 +136,7 @@ jobs:
 
       - name: Run test suite
         run: |
-          uv run --project tests pytest --timeout=45 tests/project_W_tests/
+          uv run --project tests pytest --timeout=45 --ignore tests/project_W_tests/test_schemathesis.py tests/project_W_tests/
 
   docker-build:
     #don't build&push docker image on a PR

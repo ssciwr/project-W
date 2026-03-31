@@ -36,9 +36,13 @@ You can access the full documentation for administrators and developers [here](h
 
 ![output](https://github.com/ssciwr/project-W/assets/70963316/2134852b-369c-4bda-a0f4-7575753414d9)
 
-## E-Science-Tage 2025: Poster
+## Conference posters: deRSE26 & E-Science-Tage 2025
 
-We took part in the poster session of the E-Science-Tage 2025 conference. If you want to take a look at our abstract and poster you can [find it here](https://doi.org/10.11588/heidok.00036417).
+We took part at the poster sessions of the deRSE26 and the E-Science-Tage 2025 conferences. Our abstracts and posters can be found here:
+
+[deRSE26](https://doi.org/10.5281/zenodo.18788202)
+
+[E-Science-Tage 2025](https://doi.org/10.11588/heidok.00036417)
 
 ## Acknowledgments
 

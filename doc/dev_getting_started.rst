@@ -4,10 +4,10 @@ Development - Getting started
 .. note::
    Before contributing code please also read :ref:`code_style-label` for the guidelines we use for code styling in this project and :ref:`test_setup-label` for how to write test cases for your code.
 
-This is a guide for how to get a basic Project-W development environment up and running. Please also refer to :ref:`manual_installation-label` for additional instructions (however focused on deployment).
+This is a guide for how to get a basic Project-W development environment up and running, and how to use it. Please also refer to :ref:`manual_installation-label` for additional instructions (however focused on deployment).
 
-Setup instructions
-------------------
+Basic setup & usage instructions
+--------------------------------
 
 We switched to a monorepo that contains all Project-W components, including backend, frontend, and runner. Each component might require different setups (e.g. backend and runner might even require different python versions), so keep that in mind. We provide nix development shells that automatically provide you with all packages to need with the correct version, and also handle stuff like installing pre-commit hooks. It's not required to use nix though, you can also choose to install the required tools yourself:
 
@@ -29,7 +29,7 @@ You can now start all the components required to run the backend using docker/po
 
    .. code-block:: console
 
-      docker compose up
+      docker compose --profile dev up -d
 
 in the repository root. This will setup development PostgreSQL, Redis, Mailpit (SMTP), OpenLDAP, and Keycloak servers plus pgadmin and redisinsight for database debugging. It will configure everything automatically as well (i.e. setup a PostgreSQL database, connect pgadmin to postgres, setup OpenLDAP users and a Keycloak realm). Give it some time to start everything up, and then you can visit the tools in your browser:
 
@@ -71,6 +71,10 @@ Backend
       ./run.sh
 
 You are now ready to go! You should now be able to access the Swagger UI of your running backend under http://localhost:5000/docs.
+Please note that while hot reloading should automatically be enabled, it currently does not monitor changes to the project_W_lib.
+If you make changes here you have to stop and restart the development server.
+Also, sometimes it can occur that the process doesn't exist properly when reloading/stopping.
+In these cases, search for a process that includes `worker-1` in the name and kill it (e.g. using htop).
 
 Frontend
 ````````
@@ -94,7 +98,7 @@ Frontend
 
       pnpm dev
 
-You are now ready to go! You should now be able to access the frontend under http://localhost:5173.
+You are now ready to go! You should now be able to access the frontend under http://localhost:5173. Hot reloading is enabled as well.
 
 Runner
 ``````
@@ -127,8 +131,9 @@ Runner
 
       ./run.sh
 
-You are now ready to go! Note that by default, Whisper caches downloaded models in ``$HOME/.cache/whisper/``. If you would like
-the runner to download the models into a different directory, set ``whisper_settings.model_cache_dir`` in your ``config.yml`` to the desired directory.
+You are now ready to go! Note that by default, Whisper caches downloaded models in ``$HOME/.cache/whisper/``. If you would like the runner to download the models into a different directory, set ``whisper_settings.model_cache_dir`` in your ``config.yml`` to the desired directory.
+The runner has no kind of hot reloading, after making changes to it you have to restart the process.
+
 
 .. _nix_develop-label:
 
@@ -147,54 +152,41 @@ The following environments are available: ``project_W-env`` (for the backend), `
 
 We recommend to use `Direnv <https://github.com/nix-community/nix-direnv>`_ to automatically enter the correct environment when navigating between the directories. For this we already include the required ``.envrc`` files, you just need to run ``direnv allow`` once in every directory that has one of these files in it.
 
-Usage instructions
-------------------
 
-Backend
-```````
+Locally building the containers and running the tests
+-----------------------------------------------------
 
-First make sure that you have a PostgreSQL, Redis, SMTP, and optionally OIDC and LDAP instances running (e.g. using podman).
+Our tests are system tests instead of component tests, meaning they simulate a production deployment as closely as possible while testing & fuzzing the backend's API.
+We chose this approach since the Project-W components are highly interconnected between each other, as well as with other services like PostgreSQL, Redis, and SMTP.
+To be able to test the full behavior of all components we have to start all these services as docker containers in a deployment-like setup, and then we use pytest in combination with some fixtures for controlling the backend and runner container to make HTTP requests to the backend's API.
+For more information about the testing rationale see :doc:`testing_and_code-quality`.
 
-Then you need to edit the provided dummy ``config.yml`` file with your values. This file is for development purposes only and should not be used in production! Refer to :ref:`description_backend_config-label` for how to do that. If everything is ready, you can just start the backend with:
-
-   .. code-block:: console
-
-      ./run.sh
-
-The backend will now run under the url `http://localhost:5000`, with the API docs available under `http://localhost:5000/docs`. The development webserver should also restart automatically when making changes to any code.
-
-Frontend
-````````
-
-You can start a development server:
+If you want to run the test suite locally (instead of only in GitHub Actions), you have to first build the required docker containers including the changes you made.
+For this we provide a script ``build-container.sh`` that uses dockers buildx for highest compatibility while being compatible with podman (by running the build inside a container) and building up a local cache in your `/tmp` for faster rebuilds.
+For the CI tests, you need the backend as well as runner_dummy containers.
+For this run:
 
    .. code-block:: console
 
-      pnpm dev
+      ./build-container.sh backend
 
-Now you can access the website over the url `http://localhost:5173` in your browser of choice and use the browsers development tools for debugging. The development server also supports hot module reloading which means that it will seamlessly update components on the website after you made changes to it without you even having to refresh the site in the browser.
-
-The development build variables are declared in the file ``.env.development``. We currently just have one variable: ``PUBLIC_BACKEND_BASE_URL``. It defines the url of the backend that the frontend should use. If it is not defined then the frontend will assume that the backend is hosted on the same origin than the frontend. The default value is set to the port under which the development server of the backend runs per default (on the same machine). You can also set/overwrite this by setting an environment variable in your terminal.
-
-If you want to compile the project into raw HTML, CSS and Javascript files  then run
+and
 
    .. code-block:: console
 
-      pnpm build
+      ./build-container.sh runner_dummy
 
-It will output those files into the ``build`` directory. If you plan on serving these on a different origin than the backend then you want to set ``PUBLIC_BACKEND_BASE_URL`` to the backends url before building. Either do this in the terminal as an environment variable or create a file ``.env.production`` to set it more permanently.
+Next, make sure that you have the required service containers up and running. The tests use the same docker-compose.yml as the development setup, but don't require the `dev` profile (although it doesn't hurt to start the `dev` containers as well):
 
-Runner
-``````
+   .. code-block:: console
 
-First make sure to have a backend instance up and running and that you have obtained a runner token from that instance. Refer to :doc:`connect_runner_backend` for how to do that.
+      docker compose up -d
 
-Then you need to edit the provided dummy ``config.yml`` file with your values. This file is for development purposes only and should not be used in production! Refer to :ref:`description_runner_config-label` for how to do that. If everything is ready, you can just start the runner with:
+After waiting some time for the containers to start up, you should now be able to run the tests. For this do:
 
-You can use the ``run.sh`` script to start the runner:
+   .. code-block:: console
 
-   .. code-block:: bash
-
-      ./run.sh
-
-Alternatively if you don't want to run the whisperx component of the runner you can also add the ``--dummy`` CLI option to the command inside ``run.sh``. This will result in the runner not doing any actual transcribing but can be a good option for testing purposes.
+      cd tests
+      uv sync
+      source .venv/bin/activate
+      pytest --timeout=45 project_W_tests/

@@ -340,7 +340,26 @@ async def download_transcript(
         return transcript
 
 
-@router.get("/events", response_class=EventSourceResponse)
+@router.get(
+    "/events",
+    response_class=EventSourceResponse,
+    openapi_extra={
+        "responses": {
+            401: {
+                "description": auth_dependency_responses[401]["description"],
+                "content": {
+                    "application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}
+                },
+            },
+            403: {
+                "description": auth_dependency_responses[403]["description"],
+                "content": {
+                    "application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}
+                },
+            },
+        },
+    },
+)
 async def events(
     login_context: Annotated[
         LoginContext,

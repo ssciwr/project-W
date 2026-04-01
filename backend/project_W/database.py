@@ -1,5 +1,4 @@
 import json
-import secrets
 from abc import ABC, abstractmethod
 from base64 import b64decode, b64encode
 from datetime import datetime, timedelta
@@ -16,7 +15,7 @@ from psycopg.rows import class_row, dict_row, scalar_row
 from psycopg.types.json import Jsonb
 from psycopg_pool.pool_async import AsyncConnectionPool
 from pydantic import SecretStr, ValidationError
-from project_W_lib.models.base import EmailValidated, PasswordValidated
+from project_W_lib.models.base import EmailValidated, PasswordValidated, Token
 from project_W_lib.models.request_models import JobSettingsRequest, Transcript, TranscriptTypeEnum
 from project_W_lib.models.response_models import (
     RunnerCreatedResponse,
@@ -42,7 +41,7 @@ from .models.internal_models import (
     RunnerInternal,
     TokenInfoInternal,
 )
-from .utils import hash_token, minutes_from_now_to_datetime, parse_version_tuple
+from .utils import minutes_from_now_to_datetime, parse_version_tuple
 
 
 class DatabaseAdapter(ABC):
@@ -216,17 +215,17 @@ class DatabaseAdapter(ABC):
         expiration_time_minutes: int | None = None,
         oidc_refresh_token_id: int | None = None,
         oidc_refresh_token: SecretStr | None = None,
-    ) -> SecretStr:
+    ) -> Token:
         """
         Create new user token and returns it
         """
-        token = secrets.token_urlsafe()
-        token_hash = hash_token(token)
+        token = Token()
+        token_hash = token.hash()
 
         # Sanity check to ensure that the token and its hash are unique.
         while (await self._get_user_by_token_hashed(token_hash)) is not None:
-            token = secrets.token_urlsafe()
-            token_hash = hash_token(token)
+            token = Token()
+            token_hash = token.hash()
 
         if expiration_time_minutes is not None:
             expires_at = minutes_from_now_to_datetime(expiration_time_minutes)
@@ -252,19 +251,21 @@ class DatabaseAdapter(ABC):
             oidc_refresh_token_enc,
             nonce,
         )
-        return SecretStr(token)
+        return token
 
-    async def rotate_user_token(self, token_id: int, expiration_time_minutes: int | None = None):
+    async def rotate_user_token(
+        self, token_id: int, expiration_time_minutes: int | None = None
+    ) -> Token:
         """
         Rotates the token_hash of an existing token without changing it's other parameters
         """
-        token = secrets.token_urlsafe()
-        token_hash = hash_token(token)
+        token = Token()
+        token_hash = token.hash()
 
         # Sanity check to ensure that the token and its hash are unique.
         while (await self._get_user_by_token_hashed(token_hash)) is not None:
-            token = secrets.token_urlsafe()
-            token_hash = hash_token(token)
+            token = Token()
+            token_hash = token.hash()
 
         if expiration_time_minutes is not None:
             expires_at = minutes_from_now_to_datetime(expiration_time_minutes)
@@ -272,7 +273,7 @@ class DatabaseAdapter(ABC):
             expires_at = None
 
         await self._rotate_user_token_hashed(token_id, token_hash, expires_at)
-        return SecretStr(token)
+        return token
 
     @abstractmethod
     async def delete_user(self, user_id: int):
@@ -316,7 +317,7 @@ class DatabaseAdapter(ABC):
         pass
 
     async def get_user_by_token(
-        self, token: str
+        self, token: Token
     ) -> tuple[LocalUserInternal | OidcUserInternal | LdapUserInternal, TokenInfoInternal] | None:
         """
         Validates the provided token and returns the associated user if valid (first tuple value)
@@ -324,8 +325,7 @@ class DatabaseAdapter(ABC):
         Also sets the last_usage field of that token to now.
         Returns None if the token isn't valid anymore.
         """
-        token_hash = hash_token(token)
-        return await self._get_user_by_token_hashed(token_hash)
+        return await self._get_user_by_token_hashed(token.hash())
 
     @abstractmethod
     async def get_user_by_id(
@@ -616,20 +616,19 @@ class DatabaseAdapter(ABC):
         Creates a new runner, inserts it into the database and returns its newly generated token
         token generation is done here because it is important that the token is sever generated (because of how it is hashed)
         """
-        token = secrets.token_urlsafe()
-        token_hash = hash_token(token)
+        token = Token()
+        token_hash = token.hash()
 
         # Sanity check to ensure that the token and its hash are unique.
         while (await self._get_runner_by_token_hashed(token_hash)) is not None:
-            token = secrets.token_urlsafe()
-            token_hash = hash_token(token)
+            token = Token()
+            token_hash = token.hash()
 
         runner_id = await self._create_runner_hashed(token_hash)
-        return RunnerCreatedResponse(id=runner_id, token=token)
+        return RunnerCreatedResponse(id=runner_id, token=token.root.get_secret_value())
 
-    async def get_runner_by_token(self, token: str) -> int | None:
-        token_hash = hash_token(token)
-        return await self._get_runner_by_token_hashed(token_hash)
+    async def get_runner_by_token(self, token: Token) -> int | None:
+        return await self._get_runner_by_token_hashed(token.hash())
 
     @abstractmethod
     async def general_cleanup(self):

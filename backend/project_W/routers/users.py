@@ -33,7 +33,7 @@ async def invalidate_token(
     token_id: int,
 ) -> str:
     """
-    Invalidate the local token with the provided id. Doesn't work for OIDC tokens. After calling this route the token with the provided id can't be used anymore.
+    Invalidate the local token with the provided id. After calling this route the token with the provided id can't be used anymore.
     """
     await dp.db.delete_token_of_user(login_context.user.id, token_id)
     return "Success"
@@ -47,7 +47,7 @@ async def invalidate_all_tokens(
     ],
 ) -> str:
     """
-    Invalidate all local tokens of the logged in user account. Doesn't work for OIDC tokens. After calling this route all local tokens of the logged in user account won't work anymore.
+    Invalidate all local tokens of the logged in user account. After calling this route all local tokens of the logged in user account won't work anymore.
     """
     await dp.db.delete_all_tokens_of_user(int(login_context.user.id))
     return "Success"
@@ -113,11 +113,10 @@ async def get_new_api_token(
     ):
         raise disabled_exc
 
-    print(login_context.token.oidc_refresh_token_id)
     token = await dp.db.add_new_user_token(
         login_context.user.id, name, True, False, None, login_context.token.oidc_refresh_token_id
     )
-    return token.get_secret_value()
+    return token.root.get_secret_value()
 
 
 @router.get("/get_all_token_info")

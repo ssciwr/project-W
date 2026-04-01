@@ -1,7 +1,7 @@
-from typing import Annotated
+from typing import Annotated, AsyncIterable
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, status
-from fastapi.responses import StreamingResponse
+from fastapi.sse import EventSourceResponse, ServerSentEvent
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_415_UNSUPPORTED_MEDIA_TYPE
 from project_W_lib.models.response_models import (
     ErrorResponse,
@@ -340,17 +340,35 @@ async def download_transcript(
         return transcript
 
 
-@router.get("/events")
+@router.get(
+    "/events",
+    response_class=EventSourceResponse,
+    openapi_extra={
+        "responses": {
+            401: {
+                "description": auth_dependency_responses[401]["description"],
+                "content": {
+                    "application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}
+                },
+            },
+            403: {
+                "description": auth_dependency_responses[403]["description"],
+                "content": {
+                    "application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}
+                },
+            },
+        },
+    },
+)
 async def events(
     login_context: Annotated[
         LoginContext,
         Depends(validate_user(require_verified=True, require_admin=False, require_tos=True)),
     ],
-) -> StreamingResponse:
+) -> AsyncIterable[ServerSentEvent]:
     """
     This is a special route for subscribing to server-sent events (SSE) which all contain an event field.
     Currently there are three events: job_created, job_updated and job_deleted. As data they all return the job id of the job the event refers to (i.e. the id of the job that just got created, updated or deleted). This route can be used to only fetch job info using the info route when it actually has changed without having to periodically re-fetch the job info of all jobs. Refer to https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#listening_for_custom_events for more information about SSE.
     """
-    return StreamingResponse(
-        dp.ch.event_generator(login_context.user.id), media_type="text/event-stream"
-    )
+    async for event, data in dp.ch.event_generator(login_context.user.id):
+        yield ServerSentEvent(event=event, raw_data=data)

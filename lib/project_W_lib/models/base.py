@@ -1,4 +1,7 @@
 import re
+import secrets
+import base64
+import hashlib
 
 from pydantic import BaseModel, RootModel, model_validator, SecretStr
 from typing import Any, Self
@@ -42,6 +45,38 @@ class PasswordValidated(RootModel):
         if match is None:
             raise ValueError(
                 "The password needs to have at least one lowercase letter, uppercase letter, number, special character and at least 12 characters in total"
+            )
+        return self
+
+
+class Token(RootModel):
+    root: SecretStr
+
+    def __init__(self) -> None:
+        super().__init__(secrets.token_urlsafe())
+
+    def hash(self) -> str:
+        """
+        We only store the hash of the token, otherwise a db leak would make
+        it possible to impersonate any runner/user. We don't need to use a salted hash
+        because the token is created by the server and already has sufficient entropy.
+        The hash itself is stored using base64.
+        """
+        return (
+            base64.urlsafe_b64encode(hashlib.sha256(self.root.get_secret_value().encode("ascii")).digest())
+            .rstrip(b"=")
+            .decode("ascii")
+        )
+
+    @model_validator(mode="after")
+    def password_validation(self) -> Self:
+        match = re.match(
+            r"^[A-Za-z0-9_-]+$",
+            self.root.get_secret_value(),
+        )
+        if match is None:
+            raise ValueError(
+                "Invalid token formatting, the token must be urlsafe base64 decodable"
             )
         return self
 

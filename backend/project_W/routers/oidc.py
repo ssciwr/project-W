@@ -17,14 +17,29 @@ router = APIRouter(
 )
 
 
-@router.get("/login/{idp_name}", name="oidc-redirect")
+@router.get(
+    "/login/{idp_name}",
+    name="oidc-redirect",
+    responses={
+        400: {
+            "model": ErrorResponse,
+            "description": "Could not find specified IdP",
+        },
+    },
+)
 async def login(idp_name: str, request: Request) -> RedirectResponse:
     """
     Start an OIDC login flow. This route will redirect you to the login page of the identity provider 'idp_name'. This name was specified by the admin in the config of this instance. Use the /api/auth_settings route to get the authentication-related configuration of this instance.
     """
-    redirect_uri = request.url_for("oidc-auth", idp_name=idp_name)
     idp_name = idp_name.lower()
-    return await getattr(oidc.oauth, idp_name).authorize_redirect(request, redirect_uri)
+    try:
+        oidc_client = getattr(oidc.oauth, idp_name)
+    except AttributeError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Unknown IdP '{idp_name}'"
+        )
+    redirect_uri = request.url_for("oidc-auth", idp_name=idp_name)
+    return await oidc_client.authorize_redirect(request, redirect_uri)
 
 
 @router.get(

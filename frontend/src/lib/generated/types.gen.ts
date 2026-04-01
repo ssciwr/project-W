@@ -147,7 +147,7 @@ export type BodyJobsSubmitJob = {
     /**
      * Audio File
      */
-    audio_file: Blob | File;
+    audio_file: string;
 };
 
 /**
@@ -2148,6 +2148,10 @@ export type OidcOidcRedirectData = {
 };
 
 export type OidcOidcRedirectErrors = {
+    /**
+     * Could not find specified IdP
+     */
+    400: ErrorResponse;
     /**
      * Validation Error
      */

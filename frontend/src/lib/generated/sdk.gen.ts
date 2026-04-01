@@ -36,7 +36,7 @@ export const generalAuthSettings = <ThrowOnError extends boolean = false>(option
 /**
  * Invalidate Token
  *
- * Invalidate the local token with the provided id. Doesn't work for OIDC tokens. After calling this route the token with the provided id can't be used anymore.
+ * Invalidate the local token with the provided id. After calling this route the token with the provided id can't be used anymore.
  */
 export const usersInvalidateToken = <ThrowOnError extends boolean = false>(options: Options<UsersInvalidateTokenData, ThrowOnError>) => (options.client ?? client).delete<UsersInvalidateTokenResponses, UsersInvalidateTokenErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }, {
@@ -51,7 +51,7 @@ export const usersInvalidateToken = <ThrowOnError extends boolean = false>(optio
 /**
  * Invalidate All Tokens
  *
- * Invalidate all local tokens of the logged in user account. Doesn't work for OIDC tokens. After calling this route all local tokens of the logged in user account won't work anymore.
+ * Invalidate all local tokens of the logged in user account. After calling this route all local tokens of the logged in user account won't work anymore.
  */
 export const usersInvalidateAllTokens = <ThrowOnError extends boolean = false>(options?: Options<UsersInvalidateAllTokensData, ThrowOnError>) => (options?.client ?? client).delete<UsersInvalidateAllTokensResponses, UsersInvalidateAllTokensErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }, {
@@ -401,7 +401,7 @@ export const jobsDownloadTranscript = <ThrowOnError extends boolean = false>(opt
  * This is a special route for subscribing to server-sent events (SSE) which all contain an event field.
  * Currently there are three events: job_created, job_updated and job_deleted. As data they all return the job id of the job the event refers to (i.e. the id of the job that just got created, updated or deleted). This route can be used to only fetch job info using the info route when it actually has changed without having to periodically re-fetch the job info of all jobs. Refer to https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#listening_for_custom_events for more information about SSE.
  */
-export const jobsEvents = <ThrowOnError extends boolean = false>(options?: Options<JobsEventsData, ThrowOnError>) => (options?.client ?? client).get<JobsEventsResponses, JobsEventsErrors, ThrowOnError>({
+export const jobsEvents = <ThrowOnError extends boolean = false>(options?: Options<JobsEventsData, ThrowOnError>) => (options?.client ?? client).sse.get<JobsEventsResponses, JobsEventsErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }, {
             in: 'cookie',
             name: 'token',

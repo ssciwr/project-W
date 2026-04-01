@@ -10,6 +10,9 @@ RUN npm install -g pnpm
 
 COPY . /app
 
+#needed for pnpm to tell it that there is no TTY
+ENV CI=true
+
 RUN pnpm install --frozen-lockfile
 
 RUN --mount=source=.git,target=/app/.git,type=bind \

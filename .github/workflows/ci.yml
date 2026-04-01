@@ -105,7 +105,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Project-W backend docker image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           file: *backend_dockerfile
           context: .
@@ -120,7 +120,7 @@ jobs:
           cache-to: ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}:buildcache,mode=max', env.BACKEND_IMAGE) || '' }}
 
       - name: Build Project-W dummy runner docker image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           file: *dummy-runner_dockerfile
           context: .
@@ -201,7 +201,7 @@ jobs:
 
       - name: Build ${{ matrix.container }} docker image
         id: build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           file: ${{ matrix.dockerfile }}
           context: .

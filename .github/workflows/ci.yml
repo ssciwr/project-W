@@ -195,7 +195,7 @@ jobs:
 
       - name: Metadata for ${{ matrix.container }} docker container
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ matrix.image }}
 
@@ -271,7 +271,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Metadata for backend docker container
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.BACKEND_IMAGE }}
           tags: |
@@ -286,7 +286,7 @@ jobs:
             $(printf '${{ env.BACKEND_IMAGE }}@sha256:%s ' *)
 
       - name: Metadata for cron docker container
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.CRON_IMAGE }}
           tags: |
@@ -301,7 +301,7 @@ jobs:
             $(printf '${{ env.CRON_IMAGE }}@sha256:%s ' *)
 
       - name: Metadata for runner docker container
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.RUNNER_IMAGE }}
           tags: |
@@ -316,7 +316,7 @@ jobs:
             $(printf '${{ env.RUNNER_IMAGE }}@sha256:%s ' *)
 
       - name: Metadata for dummy runner docker container
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.DUMMY_RUNNER_IMAGE }}
           tags: |

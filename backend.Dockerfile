@@ -6,7 +6,7 @@ WORKDIR /app/frontend
 
 RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@10
 
 COPY . /app
 
